@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Software Engineering Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: { fontFamily: 'Inter', primaryColor: '#f8fafc', primaryBorderColor: '#cbd5e1', lineColor: '#64748b', secondaryColor: '#e2e8f0', tertiaryColor: '#f1f5f9' } });
+</script>
+<style>
+  :root {
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-nav: #e2e8f0;
+    --bg-nav-active: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #64748b;
+    --border-color: #e2e8f0;
+    --border-hover: #cbd5e1;
+    --accent-color: #3b82f6;
+    --accent-light: #eff6ff;
+    --callout-bg: #f0fdf4;
+    --callout-border: #22c55e;
+    --callout-text: #166534;
+    --font-sans: 'Inter', sans-serif;
+    --font-mono: 'Fira Code', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); background-color: var(--bg-main); color: var(--text-primary); line-height: 1.6; padding: 2rem; max-width: 900px; margin: 0 auto; }
+  
+  header { margin-bottom: 2rem; text-align: center; }
+  h1 { font-size: 2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; }
+  p.subtitle { color: var(--text-tertiary); font-size: 1rem; }
+
+  /* Navigation Segment Control */
+  .nav { display: flex; background: var(--bg-nav); padding: 0.35rem; border-radius: 12px; gap: 0.35rem; margin-bottom: 2rem; justify-content: center; flex-wrap: wrap; }
+  .nav-btn { flex: 1; min-width: 150px; padding: 0.75rem 1.5rem; border: none; background: transparent; color: var(--text-secondary); border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.2s ease; font-family: inherit; }
+  .nav-btn:hover { color: var(--text-primary); }
+  .nav-btn.active { background: var(--bg-nav-active); color: var(--accent-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+  /* Units */
+  .unit { display: none; animation: fadeIn 0.3s ease; }
+  .unit.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Sections */
+  .section { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 1rem; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02); transition: border-color 0.2s, box-shadow 0.2s; }
+  .section:hover { border-color: var(--border-hover); box-shadow: 0 4px 6px rgba(0,0,0,0.04); }
+  
+  .sec-header { padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 600; font-size: 1.1rem; color: var(--text-primary); background: var(--bg-card); transition: background 0.2s; user-select: none; }
+  .sec-header:hover { background: #f8fafc; }
+  .sec-arrow { transition: transform 0.3s ease; color: var(--text-tertiary); display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--bg-nav); }
+  .sec-arrow.open { transform: rotate(180deg); background: var(--accent-light); color: var(--accent-color); }
+  
+  .sec-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s ease; }
+  .sec-body.open { grid-template-rows: 1fr; }
+  .sec-body-content { overflow: hidden; }
+  .sec-body-inner { padding: 0 1.5rem 1.5rem; }
+
+  /* Typography within sections */
+  h4 { font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin: 1.5rem 0 0.5rem; }
+  h4:first-child { margin-top: 0; }
+  p, li { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 0.75rem; }
+  ul { padding-left: 1.5rem; margin-bottom: 1rem; }
+  li { margin-bottom: 0.35rem; }
+  strong { color: var(--text-primary); font-weight: 600; }
+
+  /* Diagram container */
+  .diagram-container { display: flex; justify-content: center; padding: 1rem; margin: 1.5rem 0; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border-color); }
+
+  /* Formatting */
+  .formula { background: var(--accent-light); border: 1px solid #bfdbfe; border-left: 4px solid var(--accent-color); border-radius: 6px; padding: 1rem; margin: 1rem 0; font-family: var(--font-mono); font-size: 0.9rem; color: #1e3a8a; white-space: pre-wrap; }
+  
+  .callout { background: var(--callout-bg); border-left: 4px solid var(--callout-border); border-radius: 6px; padding: 1rem; margin: 1rem 0; font-size: 0.95rem; color: var(--callout-text); display: flex; gap: 0.75rem; align-items: flex-start; }
+  .callout::before { content: '💡'; font-size: 1.1rem; }
+  .callout strong { color: #14532d; }
+
+  /* Tables */
+  .table-responsive { overflow-x: auto; margin: 1rem 0; border-radius: 8px; border: 1px solid var(--border-color); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left; }
+  th { background: #f8fafc; padding: 0.75rem 1rem; font-weight: 600; color: var(--text-primary); border-bottom: 2px solid var(--border-color); }
+  td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background-color: #f1f5f9; }
+
+  @media (max-width: 600px) {
+    body { padding: 1rem; }
+    .nav { flex-direction: column; }
+    .sec-header { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Software Engineering Notes</h1>
+  <p class="subtitle">Units 3 to 5 Comprehensive Guide</p>
+</header>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="showUnit(0)">Unit III — Design & Metrics</button>
+  <button class="nav-btn" onclick="showUnit(1)">Unit IV — Testing</button>
+  <button class="nav-btn" onclick="showUnit(2)">Unit V — Maintenance & PM</button>
+</div>
+
+<!-- Unit 3 -->
+<div class="unit active" id="unit0">
+  
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">Basic Concepts of Software Design <div class="sec-arrow open">▼</div></div>
+    <div class="sec-body open">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <p>Software design is the process of transforming requirements into a blueprint for construction. It acts as a bridge between requirements and code.</p>
+          <h4>Two levels of design</h4>
+          <ul>
+            <li><strong>Architectural Design (High Level):</strong> Defines overall structure — subsystems, components, how they interact.</li>
+            <li><strong>Low Level Design (Detailed):</strong> Defines internal logic of each module — algorithms, data structures.</li>
+          </ul>
+          <h4>Design goals</h4>
+          <ul>
+            <li>Correctness, efficiency, understandability, maintainability, reusability</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">Architectural Design <div class="sec-arrow">▼</div></div>
+    <div class="sec-body">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <p>Defines the overall structure of the software system. Identifies major components and their relationships.</p>
+          <h4>Common architectural styles</h4>
+          <ul>
+            <li><strong>Layered:</strong> Each layer serves the one above it (e.g. OSI model)</li>
+            <li><strong>Client-Server:</strong> Clients request, servers respond</li>
+            <li><strong>Pipe and Filter:</strong> Data flows through processing stages</li>
+            <li><strong>Repository:</strong> Shared data store accessed by multiple components</li>
+            <li><strong>Event-Driven:</strong> Components react to events</li>
+            <li><strong>MVC (Model-View-Controller):</strong> Separates data, UI, and logic</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">Low Level Design — Modularization, DSC, Pseudo Code, Flowcharts <div class="sec-arrow">▼</div></div>
+    <div class="sec-body">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <h4>Modularization</h4>
+          <p>Breaking the system into smaller, manageable modules. Each module handles a specific function. Key principles: single responsibility, information hiding.</p>
+
+          <h4>Design Structure Charts (DSC)</h4>
+          <p>Hierarchical diagram showing modules and their calling relationships. Shows which module calls which — top-down view of system. Key elements: rectangles (modules), arrows (calls), diamonds (conditions), loops (repetition).</p>
+
+          <h4>Pseudo Code</h4>
+          <p>Informal, human-readable description of an algorithm — not actual code. Uses plain English with programming constructs (if, while, for, etc.).</p>
+          <div class="formula">BEGIN
+  READ number
+  IF number MOD 2 == 0 THEN
+    PRINT "Even"
+  ELSE
+    PRINT "Odd"
+END</div>
+
+          <h4>Flowcharts</h4>
+          <p>Graphical representation of an algorithm using standard symbols. Below is the visual representation of the Even/Odd logic:</p>
+          <div class="diagram-container">
+            <div class="mermaid">
+            flowchart TD
+                A([BEGIN]) --> B[/READ number/]
+                B --> C{number MOD 2 == 0?}
+                C -- Yes --> D[/PRINT Even/]
+                C -- No --> E[/PRINT Odd/]
+                D --> F([END])
+                E --> F
+            </div>
+          </div>
+          <ul>
+            <li>Oval — Start/End</li>
+            <li>Rectangle — Process</li>
+            <li>Diamond — Decision</li>
+            <li>Parallelogram — Input/Output</li>
+            <li>Arrow — Flow of control</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">Coupling & Cohesion <div class="sec-arrow">▼</div></div>
+    <div class="sec-body">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <h4>Coupling — interdependence between modules (LOWER = BETTER)</h4>
+          <div class="table-responsive">
+            <table>
+              <tr><th>Type</th><th>Description</th><th>Quality</th></tr>
+              <tr><td>Content</td><td>One module directly modifies another's data</td><td>Worst</td></tr>
+              <tr><td>Common</td><td>Both share global data</td><td>Bad</td></tr>
+              <tr><td>External</td><td>Share external I/O format</td><td>Moderate</td></tr>
+              <tr><td>Control</td><td>One passes control flag to another</td><td>Moderate</td></tr>
+              <tr><td>Stamp</td><td>Share composite data structure</td><td>Better</td></tr>
+              <tr><td>Data</td><td>Only simple data passed as parameters</td><td>Best</td></tr>
+            </table>
+          </div>
+
+          <h4>Cohesion — how related functions are within a module (HIGHER = BETTER)</h4>
+          <div class="table-responsive">
+            <table>
+              <tr><th>Type</th><th>Description</th><th>Quality</th></tr>
+              <tr><td>Coincidental</td><td>Unrelated functions grouped randomly</td><td>Worst</td></tr>
+              <tr><td>Logical</td><td>Logically related functions (same category)</td><td>Bad</td></tr>
+              <tr><td>Temporal</td><td>Functions executed at same time</td><td>Moderate</td></tr>
+              <tr><td>Procedural</td><td>Functions done in sequence</td><td>Moderate</td></tr>
+              <tr><td>Communicational</td><td>Functions use same data</td><td>Good</td></tr>
+              <tr><td>Sequential</td><td>Output of one is input to next</td><td>Better</td></tr>
+              <tr><td>Functional</td><td>All contribute to one well-defined task</td><td>Best</td></tr>
+            </table>
+          </div>
+          <div class="callout"><div><strong>Exam tip:</strong> Goal is HIGH cohesion + LOW coupling. That's good modular design.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">Design Strategies <div class="sec-arrow">▼</div></div>
+    <div class="sec-body">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <h4>Function Oriented Design (FOD)</h4>
+          <ul>
+            <li>System viewed as a set of functions/processes</li>
+            <li>Uses DFDs (Data Flow Diagrams) to model</li>
+            <li>Focus: what the system does</li>
+            <li>Top-down decomposition of functions</li>
+          </ul>
+
+          <h4>Object Oriented Design (OOD)</h4>
+          <ul>
+            <li>System viewed as a collection of interacting objects</li>
+            <li>Objects have attributes (data) and methods (behavior)</li>
+            <li>Concepts: encapsulation, inheritance, polymorphism, abstraction</li>
+            <li>Uses UML diagrams (class diagrams, sequence diagrams)</li>
+          </ul>
+
+          <h4>Top-Down vs Bottom-Up Design</h4>
+          <div class="table-responsive">
+            <table>
+              <tr><th>Top-Down</th><th>Bottom-Up</th></tr>
+              <tr><td>Start from overall system, break into parts</td><td>Start with basic modules, combine upward</td></tr>
+              <tr><td>Good for well-understood problems</td><td>Good for reusing existing components</td></tr>
+              <tr><td>Uses stubs for testing</td><td>Uses drivers for testing</td></tr>
+              <tr><td>Early visibility of system structure</td><td>Components tested early</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">Software Metrics — Halstead, FP, Cyclomatic Complexity <div class="sec-arrow">▼</div></div>
+    <div class="sec-body">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <h4>Halstead's Software Science</h4>
+          <p>Measures complexity based on operators and operands in source code.</p>
+          <ul>
+            <li><strong>n1</strong> = number of distinct operators</li>
+            <li><strong>n2</strong> = number of distinct operands</li>
+            <li><strong>N1</strong> = total occurrences of operators</li>
+            <li><strong>N2</strong> = total occurrences of operands</li>
+          </ul>
+          <div class="formula">Vocabulary (n) = n1 + n2
+Program Length (N) = N1 + N2
+Volume (V) = N × log₂(n)
+Difficulty (D) = (n1/2) × (N2/n2)
+Effort (E) = D × V</div>
+          <div class="callout"><div><strong>Effort (E)</strong> is most important — it estimates mental effort to code or understand the program.</div></div>
+
+          <h4>Function Point (FP) Based Measures</h4>
+          <p>Measures functionality from the user's perspective. Based on 5 components:</p>
+          <ul>
+            <li>External Inputs (EI)</li>
+            <li>External Outputs (EO)</li>
+            <li>External Inquiries (EQ)</li>
+            <li>Internal Logical Files (ILF)</li>
+            <li>External Interface Files (EIF)</li>
+          </ul>
+          <div class="formula">UFP = Σ(count × complexity weight)
+FP = UFP × (0.65 + 0.01 × Σ Fi)
+
+where Fi = 14 general system characteristics (GSC), each rated 0–5</div>
+          <div class="callout"><div>FP is language-independent. Used for cost/effort estimation early in the project.</div></div>
+
+          <h4>Cyclomatic Complexity (McCabe)</h4>
+          <p>Measures the number of independent paths through source code. Higher = more complex = harder to test.</p>
+          <div class="formula">V(G) = E - N + 2P
+where E = edges, N = nodes, P = connected components (usually 1)
+
+Also: V(G) = number of decision points + 1
+(Decision points: if, while, for, case, &&, ||)</div>
+          <div class="table-responsive">
+            <table>
+              <tr><th>V(G) Value</th><th>Risk</th></tr>
+              <tr><td>1–10</td><td>Simple, low risk</td></tr>
+              <tr><td>11–20</td><td>Moderate</td></tr>
+              <tr><td>21–50</td><td>High risk</td></tr>
+              <tr><td>&gt;50</td><td>Very high risk, untestable</td></tr>
+            </table>
+          </div>
+          <div class="callout"><div><strong>Control Flow Graph (CFG):</strong> Nodes = statements/blocks, Edges = control flow between them. V(G) = minimum number of test cases needed.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Unit 4 -->
+<div class="unit" id="unit1">
+
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">Testing Objectives & Types <div class="sec-arrow">▼</div></div>
+    <div class="sec-body">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <h4>Goals of testing</h4>
+          <ul>
+            <li>Find defects before delivery</li>
+            <li>Verify software meets requirements</li>
+            <li>Validate software does what the user actually needs</li>
+            <li>Testing shows presence of bugs, not their absence (Dijkstra)</li>
+          </ul>
+          <h4>Levels of testing</h4>
+          <div class="table-responsive">
+            <table>
+              <tr><th>Type</th><th>Who</th><th>Purpose</th></tr>
+              <tr><td>Unit Testing</td><td>Developer</td><td>Test individual modules/functions in isolation</td></tr>
+              <tr><td>Integration Testing</td><td>Developer/Tester</td><td>Test interaction between combined modules</td></tr>
+              <tr><td>System Testing</td><td>Tester</td><td>Test the complete system as a whole</td></tr>
+              <tr><td>Acceptance Testing</td><td>Client/User</td><td>Validate system meets business requirements</td></tr>
+            </table>
+          </div>
+          <h4>Regression Testing</h4>
+          <p>Re-running tests after code changes to ensure existing functionality is not broken. Done after every bug fix or new feature addition.</p>
+          <h4>Performance Testing</h4>
+          <p>Tests system under load — speed, scalability, stability. Includes load testing, stress testing, and spike testing.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">Top-Down & Bottom-Up Testing Strategies <div class="sec-arrow">▼</div></div>
+    <div class="sec-body">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <h4>Test Stubs</h4>
+          <p>Dummy modules that simulate a called module that isn't developed yet. Used in <strong>top-down testing</strong> — you test higher-level modules first, stubs replace lower ones.</p>
+
+          <h4>Test Drivers</h4>
+          <p>Dummy modules that simulate the calling module. Used in <strong>bottom-up testing</strong> — you test lower-level modules first, drivers call them.</p>
+
+          <div class="table-responsive">
+            <table>
+              <tr><th></th><th>Top-Down Testing</th><th>Bottom-Up Testing</th></tr>
+              <tr><td>Direction</td><td>Main module first, downward</td><td>Leaf modules first, upward</td></tr>
+              <tr><td>Needs</td><td>Stubs</td><td>Drivers</td></tr>
+              <tr><td>Advantage</td><td>Early system behavior visible</td><td>Real modules tested early</td></tr>
+              <tr><td>Disadvantage</td><td>Writing stubs is tedious</td><td>System-level errors found late</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">White Box Testing (Structural) <div class="sec-arrow">▼</div></div>
+    <div class="sec-body">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <p>Tests internal structure/logic of code. Tester has full access to source code. Also called glass-box or clear-box testing.</p>
+          <h4>Coverage criteria</h4>
+          <ul>
+            <li><strong>Statement Coverage:</strong> Every statement executed at least once</li>
+            <li><strong>Branch Coverage:</strong> Every branch (true/false) of decisions covered</li>
+            <li><strong>Path Coverage:</strong> Every possible path through the program covered</li>
+            <li><strong>Condition Coverage:</strong> Every condition evaluated to both true and false</li>
+          </ul>
+          <h4>Techniques</h4>
+          <ul>
+            <li>Basis Path Testing — uses cyclomatic complexity to determine test cases</li>
+            <li>Loop Testing — test loops for zero, one, typical, max, min iterations</li>
+            <li>Data Flow Testing — track variable definitions and uses</li>
+          </ul>
+          <div class="callout"><div><strong>Key point:</strong> White box testing is done by developers. It ensures code correctness, not user requirement fulfillment.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">Black Box Testing (Functional) <div class="sec-arrow">▼</div></div>
+    <div class="sec-body">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <p>Tests functionality without knowledge of internal code. Based entirely on requirements/specifications. Done by testers, not developers.</p>
+          <h4>Techniques</h4>
+          <ul>
+            <li><strong>Equivalence Partitioning:</strong> Divide inputs into valid/invalid classes; test one value from each class</li>
+            <li><strong>Boundary Value Analysis (BVA):</strong> Test at boundaries (min, min+1, max-1, max). Bugs cluster at boundaries.</li>
+            <li><strong>Decision Table Testing:</strong> Tabulate conditions and actions for complex logic</li>
+            <li><strong>State Transition Testing:</strong> Test system behavior in different states</li>
+            <li><strong>Use Case Testing:</strong> Test based on use case scenarios</li>
+          </ul>
+          <div class="callout"><div><strong>Example — BVA:</strong> For a field accepting 1–100, test values: 0, 1, 2, 99, 100, 101</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">Alpha & Beta Testing <div class="sec-arrow">▼</div></div>
+    <div class="sec-body">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <div class="table-responsive">
+            <table>
+              <tr><th></th><th>Alpha Testing</th><th>Beta Testing</th></tr>
+              <tr><td>Where</td><td>Developer's site</td><td>Customer's site</td></tr>
+              <tr><td>Who</td><td>Internal testers / select users</td><td>Actual end users</td></tr>
+              <tr><td>When</td><td>Before beta</td><td>Before final release</td></tr>
+              <tr><td>Control</td><td>Controlled environment</td><td>Real-world environment</td></tr>
+              <tr><td>Goal</td><td>Find bugs before external release</td><td>Get user feedback, final bug fixes</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">Static Testing — Reviews, Walkthroughs, Inspections <div class="sec-arrow">▼</div></div>
+    <div class="sec-body">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <p>Static testing doesn't execute code. It reviews artifacts (code, design, docs) manually to find defects early.</p>
+          <h4>Formal Technical Review (FTR / Peer Review)</h4>
+          <ul>
+            <li>Structured meeting where team reviews software product</li>
+            <li>Roles: moderator, author, reviewers, recorder</li>
+            <li>Produces a review report with defects listed</li>
+            <li>Author cannot moderate their own work</li>
+          </ul>
+          <h4>Walkthrough</h4>
+          <ul>
+            <li>Author walks the team through the document/code</li>
+            <li>Informal — no strict rules</li>
+            <li>Goal: understanding + finding defects</li>
+            <li>Author leads the discussion</li>
+          </ul>
+          <h4>Code Inspection</h4>
+          <ul>
+            <li>Most formal type of review</li>
+            <li>Uses checklists to systematically find defects</li>
+            <li>Moderator leads (not the author)</li>
+            <li>Defects logged; author must fix and re-inspect if needed</li>
+          </ul>
+          <div class="table-responsive">
+            <table>
+              <tr><th></th><th>Walkthrough</th><th>Inspection</th></tr>
+              <tr><td>Formality</td><td>Low</td><td>High</td></tr>
+              <tr><td>Leader</td><td>Author</td><td>Moderator (not author)</td></tr>
+              <tr><td>Checklist</td><td>No</td><td>Yes</td></tr>
+              <tr><td>Follow-up</td><td>Not mandatory</td><td>Mandatory</td></tr>
+            </table>
+          </div>
+          <h4>Compliance with Standards</h4>
+          <p>Code/design must follow organizational coding standards and design conventions — naming, formatting, commenting, error handling, etc. Checked during reviews/inspections.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Unit 5 -->
+<div class="unit" id="unit2">
+
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">Software Maintenance <div class="sec-arrow">▼</div></div>
+    <div class="sec-body">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <h4>Software as an evolutionary entity</h4>
+          <p>Software must evolve to stay useful. Lehman's Laws say software either continues to adapt or becomes progressively less useful.</p>
+          <h4>Need for maintenance</h4>
+          <ul>
+            <li>Bugs found post-delivery</li>
+            <li>Environment changes (OS, hardware, regulations)</li>
+            <li>User requirements change</li>
+            <li>Performance improvements needed</li>
+          </ul>
+          <h4>Categories of maintenance</h4>
+          <div class="table-responsive">
+            <table>
+              <tr><th>Type</th><th>Purpose</th><th>Example</th></tr>
+              <tr><td>Corrective</td><td>Fix bugs found after delivery</td><td>Fixing a crash on login</td></tr>
+              <tr><td>Adaptive</td><td>Adapt to new environment</td><td>Upgrade for new OS version</td></tr>
+              <tr><td>Perfective</td><td>Enhance functionality/performance</td><td>Adding a new feature</td></tr>
+              <tr><td>Preventive</td><td>Prevent future failures (re-engineering)</td><td>Refactoring messy code</td></tr>
+            </table>
+          </div>
+          <div class="callout"><div><strong>Cost fact:</strong> Maintenance consumes 60–80% of total software lifecycle cost. Preventive maintenance reduces long-term cost.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">Re-Engineering & Reverse Engineering <div class="sec-arrow">▼</div></div>
+    <div class="sec-body">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <h4>Software Re-Engineering</h4>
+          <p>Rebuilding or restructuring existing software to improve quality without changing its functionality.</p>
+          <div class="diagram-container">
+            <div class="mermaid">
+            flowchart LR
+                A(Inventory Analysis) --> B(Document Restructuring)
+                B --> C(Reverse Engineering)
+                C --> D(Code Restructuring)
+                D --> E(Data Restructuring)
+                E --> F(Forward Engineering)
+            </div>
+          </div>
+          <ul>
+            <li>Steps: Inventory analysis → Document restructuring → Reverse engineering → Code restructuring → Data restructuring → Forward engineering</li>
+          </ul>
+          <h4>Reverse Engineering</h4>
+          <p>Analyzing existing software to understand its design and requirements — going backward from code to design/specs.</p>
+          <ul>
+            <li>Used when documentation is missing or outdated</li>
+            <li>Produces design documents, models, specs from code</li>
+            <li>Component of re-engineering process</li>
+          </ul>
+          <div class="callout"><div><strong>Difference:</strong> Reverse engineering = understand existing system. Re-engineering = understand + rebuild/improve it.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">Software Configuration Management (SCM) <div class="sec-arrow">▼</div></div>
+    <div class="sec-body">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <p>SCM manages changes to software throughout its lifecycle. Ensures integrity, traceability, and control.</p>
+          <h4>SCM activities</h4>
+          <ul>
+            <li><strong>Configuration Identification:</strong> Identify items to be controlled (SCIs — Software Configuration Items)</li>
+            <li><strong>Change Control:</strong> Formal process to request, evaluate, approve/reject changes</li>
+            <li><strong>Version Control:</strong> Track different versions of software artifacts (Git, SVN)</li>
+            <li><strong>Configuration Audit:</strong> Verify that configuration items conform to requirements</li>
+            <li><strong>Status Reporting:</strong> Record and report status of change requests</li>
+          </ul>
+          <h4>Change Control Process</h4>
+          <div class="diagram-container">
+            <div class="mermaid">
+            flowchart LR
+                A([Change Request]) --> B(Evaluate by CCB)
+                B --> C{Decision}
+                C -- Approve --> D(Implement & Test)
+                D --> E([Release])
+                C -- Reject --> F([Close Request])
+            </div>
+          </div>
+          <ul>
+            <li>Change request submitted → Evaluated by CCB (Change Control Board) → Approved/Rejected → Implemented → Tested → Released</li>
+          </ul>
+          <h4>Software Version Control</h4>
+          <ul>
+            <li>Tracks all changes to code with timestamps and author info</li>
+            <li>Allows rollback to previous versions</li>
+            <li>Supports branching and merging</li>
+            <li>Tools: Git, SVN, Mercurial</li>
+          </ul>
+          <h4>CASE Tools (Computer Aided Software Engineering)</h4>
+          <p>Software tools that support software engineering activities:</p>
+          <ul>
+            <li><strong>Upper CASE:</strong> Requirements, planning, modeling (draw.io, Enterprise Architect)</li>
+            <li><strong>Lower CASE:</strong> Code generation, testing, debugging (IDEs, compilers)</li>
+            <li><strong>Integrated CASE:</strong> Cover full lifecycle</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">Project Estimation — Cost, Effort, Schedule <div class="sec-arrow">▼</div></div>
+    <div class="sec-body">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <h4>Parameters to estimate</h4>
+          <ul>
+            <li><strong>Size:</strong> LOC, Function Points</li>
+            <li><strong>Effort:</strong> Person-months required</li>
+            <li><strong>Duration:</strong> Calendar time (schedule)</li>
+            <li><strong>Cost:</strong> Money required</li>
+          </ul>
+          <h4>COCOMO (Constructive Cost Model) — Barry Boehm</h4>
+          <p>Algorithmic model to estimate effort and duration based on estimated LOC.</p>
+          <div class="formula">Basic COCOMO:
+Effort (E) = a × (KLOC)^b  [person-months]
+Duration (D) = c × (E)^d   [months]
+
+Organic mode:    E = 2.4 × (KLOC)^1.05,  D = 2.5 × E^0.38
+Semi-detached:   E = 3.0 × (KLOC)^1.12,  D = 2.5 × E^0.35
+Embedded mode:   E = 3.6 × (KLOC)^1.20,  D = 2.5 × E^0.32</div>
+          <div class="table-responsive">
+            <table>
+              <tr><th>Mode</th><th>Description</th></tr>
+              <tr><td>Organic</td><td>Small, simple projects. Experienced team. Well-understood requirements.</td></tr>
+              <tr><td>Semi-detached</td><td>Medium complexity. Mixed experience team.</td></tr>
+              <tr><td>Embedded</td><td>Complex, tight constraints. Real-time or safety-critical systems.</td></tr>
+            </table>
+          </div>
+          <div class="callout"><div><strong>Intermediate COCOMO</strong> adds 15 cost drivers (product, hardware, personnel, project attributes) as multipliers to the basic estimate.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">Resource Allocation Models <div class="sec-arrow">▼</div></div>
+    <div class="sec-body">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <h4>Putnam Model (Norden-Rayleigh Curve)</h4>
+          <p>Models staffing over time as a bell-shaped curve (Rayleigh curve). Peak staffing is at about 40% of the project timeline.</p>
+          <div class="formula">L = C × K^(1/3) × T^(4/3)
+
+where L = LOC, K = effort (person-years), T = development time, C = technology constant</div>
+
+          <h4>Resource Allocation</h4>
+          <ul>
+            <li>Identify tasks, estimate effort per task</li>
+            <li>Assign people based on skills and availability</li>
+            <li>Monitor and rebalance as project progresses</li>
+            <li>Don't add people late to a late project (Brooks's Law: adds more delay)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header" onclick="toggle(this)">Software Risk Analysis & Management <div class="sec-arrow">▼</div></div>
+    <div class="sec-body">
+      <div class="sec-body-content">
+        <div class="sec-body-inner">
+          <h4>Risk</h4>
+          <p>A potential problem that may or may not occur. Characterized by probability and impact.</p>
+          <div class="formula">Risk Exposure = Probability × Impact</div>
+          <h4>Types of risk</h4>
+          <ul>
+            <li><strong>Project risk:</strong> Schedule delays, budget overruns, staff issues</li>
+            <li><strong>Technical risk:</strong> Design problems, technology failures</li>
+            <li><strong>Business risk:</strong> Market changes, competitor products</li>
+          </ul>
+          <h4>Risk management steps</h4>
+          <ul>
+            <li><strong>Risk Identification:</strong> List all possible risks (checklists, brainstorming)</li>
+            <li><strong>Risk Analysis:</strong> Estimate probability and impact for each risk</li>
+            <li><strong>Risk Prioritization:</strong> Rank by risk exposure</li>
+            <li><strong>Risk Planning:</strong> Define mitigation or contingency strategies</li>
+            <li><strong>Risk Monitoring:</strong> Track risks throughout the project</li>
+          </ul>
+          <h4>Risk strategies</h4>
+          <ul>
+            <li><strong>Avoidance:</strong> Redesign to eliminate the risk</li>
+            <li><strong>Mitigation:</strong> Reduce probability or impact</li>
+            <li><strong>Transfer:</strong> Shift risk to third party (insurance, outsourcing)</li>
+            <li><strong>Acceptance:</strong> Accept and deal with consequences if it occurs</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showUnit(idx) {
+  document.querySelectorAll('.unit').forEach((u, i) => {
+    u.classList.toggle('active', i === idx);
+  });
+  document.querySelectorAll('.nav-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+}
+
+function toggle(header) {
+  const body = header.nextElementSibling;
+  const arrow = header.querySelector('.sec-arrow');
+  const isOpen = body.classList.contains('open');
+
+  body.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+}
+</script>
+
+</body>
+</html>
